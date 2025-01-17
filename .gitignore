@@ -1,0 +1,23 @@
+# Ignore environment files (e.g., containing API keys, DB passwords)
+.env
+
+# Ignore node_modules folder (for Node.js projects)
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore system-specific files (e.g., macOS, Windows)
+.DS_Store      # macOS
+Thumbs.db      # Windows
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore IDE-specific files (e.g., for VSCode, IntelliJ)
+.vscode/
+.idea/
+
+# Ignore build output directories
+dist/
+build/
