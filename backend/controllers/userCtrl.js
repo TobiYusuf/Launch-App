@@ -34,21 +34,18 @@ const registerUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return next(new AppError("User not found !", 404));
       // return res.status(404).json({ message: "User not found !" });
     }
-
     // verify the password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return next(new AppError("Invalid credentials", 400));
       // return res.status(400).json({ message: "Invalid credentials" });
     }
-
     const accessToken = generateToken(user._id, "1hr");
     const refreshToken = generateToken(user._id, "7d");
 
@@ -63,6 +60,49 @@ const loginUser = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "User logged in successfully",
+      token: accessToken,
+      user: user,
+    });
+  } catch (error) {
+    // console.error(error.message);
+    // res.status(500).json({ message: "Server error" });
+    next(error);
+  }
+};
+
+const loginAdmin = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(new AppError("Admin doesn't exist", 404))
+    }
+    console.log(user);
+    if (user.role !== "admin") {
+      return next(
+        new AppError("Permission denied, admin access required", 403)
+      );
+    }
+    // verify the password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return next(new AppError("Invalid credentials", 400));
+      // return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const accessToken = generateToken(user._id, "1hr");
+    const refreshToken = generateToken(user._id, "7d");
+
+    user.password = undefined; // Sensitive information should not be returned
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true, // Make the cookie inaccessible to JavaScript
+      secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS in production
+      maxAge: 7 * 24 * 60 * 60 * 1000, // Set expiry for the refresh token cookie (7 days)
+      sameSite: "Strict", // Protect against CSRF by not sending cookie with cross-site requests
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Admin logged in successfully",
       token: accessToken,
       user: user,
     });
@@ -103,18 +143,23 @@ const handleRefreshToken = async (req, res, next) => {
         new AppError("There is something wrong with the refresh token", 401)
       );
     }
-    const newAccessToken = generateToken(decoded._id, "1hr")
-    const newRefreshToken = generateToken(decoded._id, "7d")
+    const newAccessToken = generateToken(decoded._id, "1hr");
+    const newRefreshToken = generateToken(decoded._id, "7d");
     res.cookies("refreshtoken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 60 * 1000,
-      sameSite: 'Strict'
+      sameSite: "Strict",
     });
 
-    res.json({accessToken: newAccessToken})
+    res.json({ accessToken: newAccessToken });
   });
-  
 };
 
-module.exports = { registerUser, loginUser, logoutUser, handleRefreshToken };
+module.exports = {
+  registerUser,
+  loginUser,
+  logoutUser,
+  handleRefreshToken,
+  loginAdmin,
+};

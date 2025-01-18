@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const connectDB = require("../backend/config/db");
 const authRoutes = require("../backend/routes/authRoutes");
+const foodRoutes = require('./routes/foodCategoryRoute')
 const morgan = require("morgan");
 const cookieParser = require('cookie-parser');
 
@@ -14,6 +15,7 @@ app.use(morgan("dev"));
 app.use(express.json()); // middleware to parse JSON bodies
 app.use(cookieParser());
 app.use("/api/auth", authRoutes);
+app.use("/api/food", foodRoutes);
 
 // Example route
 app.get("/", (req, res) => {
