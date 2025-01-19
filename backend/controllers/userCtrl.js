@@ -46,7 +46,7 @@ const loginUser = async (req, res, next) => {
       return next(new AppError("Invalid credentials", 400));
       // return res.status(400).json({ message: "Invalid credentials" });
     }
-    const accessToken = generateToken(user._id, "1hr");
+    const accessToken = generateToken(user._id, "7d");
     const refreshToken = generateToken(user._id, "7d");
 
     user.password = undefined; // Sensitive information should not be returned
@@ -89,7 +89,7 @@ const loginAdmin = async (req, res, next) => {
       return next(new AppError("Invalid credentials", 400));
       // return res.status(400).json({ message: "Invalid credentials" });
     }
-    const accessToken = generateToken(user._id, "1hr");
+    const accessToken = generateToken(user._id, "7d");
     const refreshToken = generateToken(user._id, "7d");
 
     user.password = undefined; // Sensitive information should not be returned

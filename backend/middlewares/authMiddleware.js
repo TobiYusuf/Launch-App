@@ -25,14 +25,14 @@ const AppError = require("../utils/appError");
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.headers?.authorization?.split(" ")[1];
-    console.log(token);
+    // console.log("authmiddleware",token);
     if (!token) {
       return next(new AppError("No token, authorization denied", 401));
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded?.id);
-
+    // console.log("authmiddleware",user)
     // Attach the uset information to the request object
     req.user = user;
     next();

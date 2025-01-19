@@ -26,7 +26,7 @@ const createCategory = async (req, res, next) => {
 const getAllCategories = async (req, res, next) => {
   //return an array of categories with their food populated
   try {
-    const categories = await Category.find();
+    const categories = await Category.find().populate("food");
     if (categories.length === 0) {
       return next(new AppError("No categories found", 404));
     }
@@ -100,8 +100,6 @@ const removeCategory = async (req, res, next) => {
     next(error);
   }
 };
-
-const addFood = async (req, res, next) => {};
 
 module.exports = {
   createCategory,
